@@ -84,9 +84,6 @@
             align-items: center;
             position: relative;
             margin: 0 auto;
-            margin-right:10px;
-            margin-left:10px;
-            margin-bottom:10px;
         }
 
         .plant-card img {
@@ -94,7 +91,6 @@
             height: 150px;
             border-radius: 10px;
             object-fit: cover;
-           
         }
 
         .plant-info {
@@ -124,7 +120,6 @@
             border-radius: 50%;
             background-color: var(--color-6);
         }
-
 
         .add-plant-btn {
             background-color: var(--color-5);
@@ -180,236 +175,269 @@
             border-radius: 10px;
             text-align: center;
         }
+
+        #camera-container video {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        .close-btn {
+            background-color: red;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .close-btn:hover {
+            background-color: darkred;
+        }
+
+        .capture-btn {
+            background-color: green;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .capture-btn:hover {
+            background-color: darkgreen;
+        }
     </style>
 </head>
 <body>
+    <header>
+        <h1>Garden Plants</h1>
+    </header>
     <div class="container">
-        <header>
-            <h1>My Garden Plants</h1>
-        </header>
         <div class="welcome-container">
-            <h2>Welcome!</h2>
-            <p>Start adding your plants and watch your garden grow.</p>
+            <h2>Welcome to Your Garden Plants App!</h2>
+            <p>Track and nurture your plants with ease.</p>
         </div>
-        <button id="add-plant-btn" class="btn add-plant-btn mb-4">Add Plant</button>
-        <form id="add-plant-form" class="add-plant-form hidden mb-4">
-            <div class="form-group">
-                <input type="text" id="plant-name" class="form-control" placeholder="Plant Name" required>
-            </div>
-            <div class="form-group">
-                <select id="plant-condition" class="form-control" required>
-                    <option value="" disabled selected hidden>Condition</option>
-                    <option value="Healthy">Healthy</option>
-                    <option value="Good">Good</option>
-                    <option value="Worst">Worst</option>
-                    <option value="new">new</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <select id="plant-growth" class="form-control" required>
-                    <option value="" disabled selected hidden>Growth</option>
-                    <option value="High">High</option>
-                    <option value="Moderate">Moderate</option>
-                    <option value="Low">Low</option>
-                    <option value="new">new</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <select id="plant-fertility" class="form-control" required>
-                    <option value="" disabled selected hidden>yield</option>
-                    <option value="High">High</option>
-                    <option value="Moderate">Moderate</option>
-                    <option value="Low">Low</option>
-                    <option value="new">new</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Add Plant</button>
-        </form>
-        <div id="plant-list" class="row">
-            <!-- Existing plants will be rendered here -->
+        <div class="plant-list" id="plant-list">
+            <!-- Plant cards will be added here dynamically -->
         </div>
+        <button class="add-plant-btn" id="add-plant-btn">Add Plant</button>
     </div>
-    
+
     <!-- Camera Popup -->
     <div id="camera-popup">
         <div id="camera-container">
-            <video id="camera" width="300" height="300" autoplay></video>
-            <select id="camera-select" class="form-control mt-3"></select>
-            <button id="capture-btn" class="btn btn-primary mt-3">Capture</button>
+            <video id="camera-stream" autoplay></video>
+            <button class="capture-btn" id="capture-btn">Capture</button>
+            <button class="close-btn" id="close-btn">Close</button>
         </div>
     </div>
-    
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const addPlantBtn = document.getElementById('add-plant-btn');
-            const addPlantForm = document.getElementById('add-plant-form');
-            const plantNameInput = document.getElementById('plant-name');
-            const plantConditionInput = document.getElementById('plant-condition');
-            const plantGrowthInput = document.getElementById('plant-growth');
-            const plantFertilityInput = document.getElementById('plant-fertility');
-            const unsplashAccessKey = 'bJxJsjiGOgwtJcud86dF745ODehBFrocy0ggZ6_1ZPU';  // Replace with your Unsplash API access key
-    
-            const plants = [];
-    
-            function renderPlants() {
-                const plantList = document.getElementById('plant-list');
-                plantList.innerHTML = '';
-                plants.forEach((plant, index) => {
-                    const plantCard = document.createElement('div');
-                    plantCard.className = 'plant-card col-md-6';
-                    plantCard.innerHTML = `
-                        <img src="${plant.image}" class="img-fluid" alt="${plant.name}">
-                        <div class="plant-info mt-3">
-                            <h3>${plant.name}</h3>
-                            <div class="status">
-                                <div class="status-item">
-                                    <span>Condition:</span>
-                                    <div class="status-indicator" style="background-color: ${getStatusColor(plant.condition)};"></div>
-                                    <span>${plant.condition}</span>
-                                </div>
-                                <div class="status-item">
-                                    <span>Growth:</span>
-                                    <div class="status-indicator" style="background-color: ${getStatusColor(plant.growth)};"></div>
-                                    <span>${plant.growth}</span>
-                                </div>
-                                <div class="status-item">
-                                    <span>Fertility:</span>
-                                    <div class="status-indicator" style="background-color: ${getStatusColor(plant.fertility)};"></div>
-                                    <span>${plant.fertility}</span>
-                                </div>
-                            </div>
+
+    <!-- Modal for adding new plant details -->
+    <div class="modal fade" id="addPlantModal" tabindex="-1" role="dialog" aria-labelledby="addPlantModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addPlantModalLabel">Add New Plant</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addPlantForm">
+                        <div class="form-group">
+                            <label for="plantName">Plant Name</label>
+                            <input type="text" class="form-control" id="plantName" required>
                         </div>
-                        <button class="btn update-btn mt-2" data-index="${index}">Update</button>
-                        <button class="btn remove-btn mt-2" data-index="${index}">Remove</button>
-                    `;
-                    plantList.appendChild(plantCard);
-                });
-    
-                // Add event listeners to the remove and update buttons
-                document.querySelectorAll('.remove-btn').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const index = e.target.dataset.index;
-                        plants.splice(index, 1);
-                        renderPlants();
-                    });
-                });
-    
-                document.querySelectorAll('.update-btn').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const index = e.target.dataset.index;
-                        openCamera(index);
-                    });
-                });
-            }
-    
-            function getStatusColor(status) {
-                switch (status.toLowerCase()) {
-                    case 'healthy':
-                    case 'high':
-                        return 'green';
-                    case 'good':
-                    case 'moderate':
-                        return 'yellow';
-                    case 'worst':
-                    case 'low':
-                        return 'red';
-                    default:
-                        return 'grey';
-                }
-            }
-    
-            async function fetchPlantImage(plantName) {
-                const response = await fetch(`https://api.unsplash.com/search/photos?query=${plantName}&client_id=${unsplashAccessKey}`);
-                const data = await response.json();
-                return data.results.length > 0 ? data.results[0].urls.small : 'https://via.placeholder.com/150';
-            }
-    
+                        <div class="form-group">
+                            <label for="plantCondition">Plant Condition</label>
+                            <input type="text" class="form-control" id="plantCondition" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="plantYield">Plant Yield</label>
+                            <input type="text" class="form-control" id="plantYield">
+                        </div>
+                        <div class="form-group">
+                            <label for="isNewPlant">Is this a new plant?</label>
+                            <select class="form-control" id="isNewPlant">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Plant</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for selecting image options -->
+    <div class="modal fade" id="imageOptionsModal" tabindex="-1" role="dialog" aria-labelledby="imageOptionsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageOptionsModalLabel">Choose Image Source</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <button id="openCameraBtn" class="btn btn-primary">Open Camera</button>
+                    <button id="uploadImageBtn" class="btn btn-secondary">Upload Image</button>
+                    <input type="file" id="imageInput" class="hidden">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for displaying prediction result -->
+    <div class="modal fade" id="predictionResultModal" tabindex="-1" role="dialog" aria-labelledby="predictionResultModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="predictionResultModalLabel">Prediction Result</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p id="prediction-result">Prediction result will be displayed here.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap and jQuery scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const addPlantBtn = document.getElementById('add-plant-btn');
+            const plantList = document.getElementById('plant-list');
+            const addPlantModal = document.getElementById('addPlantModal');
+            const addPlantForm = document.getElementById('addPlantForm');
+            const imageOptionsModal = document.getElementById('imageOptionsModal');
+            const openCameraBtn = document.getElementById('openCameraBtn');
+            const uploadImageBtn = document.getElementById('uploadImageBtn');
+            const imageInput = document.getElementById('imageInput');
+            const cameraPopup = document.getElementById('camera-popup');
+            const cameraStream = document.getElementById('camera-stream');
+            const captureBtn = document.getElementById('capture-btn');
+            const closeBtn = document.getElementById('close-btn');
+            const predictionResult = document.getElementById('prediction-result');
+
+            let currentPlantCard = null;
+
             addPlantBtn.addEventListener('click', () => {
-                addPlantForm.classList.toggle('hidden');
+                $('#addPlantModal').modal('show');
             });
-    
-            addPlantForm.addEventListener('submit', async (e) => {
+
+            addPlantForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const plantName = plantNameInput.value;
-                const plantImage = await fetchPlantImage(plantName);
-                const newPlant = {
-                    name: plantName,
-                    image: plantImage,
-                    condition: plantConditionInput.value,
-                    growth: plantGrowthInput.value,
-                    fertility: plantFertilityInput.value
-                };
-                plants.push(newPlant);
-                renderPlants();
-                addPlantForm.reset();
-                addPlantForm.classList.add('hidden');
+                const plantName = document.getElementById('plantName').value;
+                const plantCondition = document.getElementById('plantCondition').value;
+                const plantYield = document.getElementById('plantYield').value;
+                const isNewPlant = document.getElementById('isNewPlant').value;
+
+                const plantCard = document.createElement('div');
+                plantCard.className = 'plant-card';
+                plantCard.innerHTML = `
+                    <div class="plant-info">
+                        <h3>${plantName}</h3>
+                        <p>Condition: ${plantCondition}</p>
+                        <p>Yield: ${plantYield}</p>
+                        <p>New Plant: ${isNewPlant}</p>
+                        <button class="update-btn">Upload Image</button>
+                        <input type="file" class="hidden">
+                    </div>
+                    <img src="default.jpg" alt="Plant Image">
+                `;
+                plantList.appendChild(plantCard);
+                $('#addPlantModal').modal('hide');
+
+                const updateBtn = plantCard.querySelector('.update-btn');
+                const fileInput = plantCard.querySelector('input[type="file"]');
+                updateBtn.addEventListener('click', () => {
+                    currentPlantCard = plantCard;
+                    $('#imageOptionsModal').modal('show');
+                });
+
+                fileInput.addEventListener('change', () => {
+                    const file = fileInput.files[0];
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const imageData = e.target.result;
+                        uploadImage(imageData, plantCard);
+                    };
+                    reader.readAsDataURL(file);
+                });
             });
-    
-            function openCamera(index) {
-                const cameraPopup = document.getElementById('camera-popup');
-                const video = document.getElementById('camera');
-                const captureBtn = document.getElementById('capture-btn');
-                const cameraSelect = document.getElementById('camera-select');
+
+            openCameraBtn.addEventListener('click', () => {
+                $('#imageOptionsModal').modal('hide');
                 cameraPopup.style.display = 'block';
 
-                // Clear existing options
-                cameraSelect.innerHTML = '';
-    
-                navigator.mediaDevices.enumerateDevices().then(devices => {
-                    const videoDevices = devices.filter(device => device.kind === 'videoinput');
-                    videoDevices.forEach((device, i) => {
-                        const option = document.createElement('option');
-                        option.value = device.deviceId;
-                        option.text = device.label || `Camera ${i + 1}`;
-                        cameraSelect.appendChild(option);
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(stream => {
+                        cameraStream.srcObject = stream;
+                    })
+                    .catch(err => {
+                        console.error('Error accessing camera:', err);
                     });
-                });
+            });
 
-                cameraSelect.addEventListener('change', () => {
-                    const selectedDeviceId = cameraSelect.value;
-                    startCamera(selectedDeviceId);
-                });
-    
-                // Start the camera with the selected device
-                function startCamera(deviceId) {
-                    const constraints = {
-                        video: {
-                            deviceId: deviceId ? { exact: deviceId } : undefined
-                        }
-                    };
-                    navigator.mediaDevices.getUserMedia(constraints)
-                        .then((stream) => {
-                            video.srcObject = stream;
-                            video.play();
-                        })
-                        .catch((err) => {
-                            console.error('Error accessing the camera: ', err);
-                        });
-                }
-    
-                // Start with the first available device
-                startCamera(cameraSelect.value);
-    
-                // Capture button functionality
-                captureBtn.addEventListener('click', () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    const context = canvas.getContext('2d');
-                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    const imageUrl = canvas.toDataURL('image/png');
-                    plants[index].image = imageUrl;
-                    renderPlants();
-                    cameraPopup.style.display = 'none';
-                    video.srcObject.getTracks().forEach(track => track.stop());
-                });
-            }
-    
-            renderPlants();
+            closeBtn.addEventListener('click', () => {
+                cameraPopup.style.display = 'none';
+                let stream = cameraStream.srcObject;
+                let tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                cameraStream.srcObject = null;
+            });
+
+            captureBtn.addEventListener('click', () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = cameraStream.videoWidth;
+                canvas.height = cameraStream.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(cameraStream, 0, 0, canvas.width, canvas.height);
+                const imageData = canvas.toDataURL('image/png');
+                cameraPopup.style.display = 'none';
+                uploadImage(imageData, currentPlantCard);
+            });
+
+            uploadImageBtn.addEventListener('click', () => {
+                const fileInput = currentPlantCard.querySelector('input[type="file"]');
+                fileInput.click();
+            });
+
+            function uploadImage(imageData, plantCard) {
+    fetch('/analyze_image', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ image: imageData })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.stage === 'unidentified') {
+            alert('Unidentified image. Please upload a valid image.');
+        } else {
+            predictionResult.textContent = `Stage: ${data.stage}, Suggestions: ${data.suggestions}`;
+            $('#predictionResultModal').modal('show');
+            plantCard.querySelector('img').src = imageData;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
         });
     </script>
 </body>
