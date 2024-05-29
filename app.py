@@ -39,7 +39,7 @@ def get_stage_message(predicted_class):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('PROFILE.html')
 
 @app.route('/analyze_image', methods=['POST'])
 def analyze_image():
